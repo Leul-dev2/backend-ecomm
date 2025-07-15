@@ -1,16 +1,18 @@
 import admin from 'firebase-admin';
-import fs from 'fs';
+import dotenv from 'dotenv';
 
-const serviceAccount = JSON.parse(
-  fs.readFileSync('./assets/serviceAccountKey.json', 'utf-8')
-);
+dotenv.config();
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
+const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+if (!serviceAccountJson) {
+  throw new Error('Missing GOOGLE_SERVICE_ACCOUNT_KEY in environment variables');
 }
 
-const db = admin.firestore();
+const serviceAccount = JSON.parse(serviceAccountJson);
+serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
 
-export { admin, db };
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+export default admin;
