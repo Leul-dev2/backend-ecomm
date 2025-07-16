@@ -38,7 +38,25 @@ router.get('/:sku', async (req, res) => {
   }
 });
 
-// ✅ NEW: Delete product by SKU
+// Update product by SKU (this is missing in your code)
+router.put('/:sku', async (req, res) => {
+  try {
+    const { sku } = req.params;
+    const updated = await Product.findOneAndUpdate(
+      { sku: sku.trim() },
+      req.body,
+      { new: true }
+    );
+    if (!updated) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update product', error: error.message });
+  }
+});
+
+// Delete product by SKU
 router.delete('/:sku', async (req, res) => {
   try {
     const { sku } = req.params;
