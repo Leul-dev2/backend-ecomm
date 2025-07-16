@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get product by SKU (THIS WAS MISSING)
+// Get product by SKU
 router.get('/:sku', async (req, res) => {
   try {
     const { sku } = req.params;
@@ -33,6 +33,20 @@ router.get('/:sku', async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
     res.json(product);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ✅ NEW: Delete product by SKU
+router.delete('/:sku', async (req, res) => {
+  try {
+    const { sku } = req.params;
+    const deleted = await Product.findOneAndDelete({ sku: sku.trim() });
+    if (!deleted) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    res.json({ message: 'Product deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
