@@ -1,5 +1,4 @@
 // models/Category.js
-
 import mongoose from 'mongoose';
 
 const SubCategorySchema = new mongoose.Schema({
@@ -8,12 +7,12 @@ const SubCategorySchema = new mongoose.Schema({
 });
 
 const CategorySchema = new mongoose.Schema({
-  title: { type: String, required: true },
+  title: { type: String, required: true, unique: true },
   image: String,
   svgSrc: String,
   thumbnail: String,
   label: String,
-  subCategories: [SubCategorySchema], // Embedded array of subcategories
+  subCategories: [SubCategorySchema],
 });
 
 export default mongoose.model('Category', CategorySchema);

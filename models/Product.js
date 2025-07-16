@@ -1,12 +1,7 @@
 import mongoose from 'mongoose';
 
 const productSchema = new mongoose.Schema({
-  sku: { 
-    type: String, 
-    required: true, 
-    unique: true, 
-    trim: true 
-  },
+  sku: { type: String, required: true, unique: true, trim: true },
   image: { type: String, required: true, trim: true },
   brandName: { type: String, required: true, trim: true },
   title: { type: String, required: true, trim: true },
@@ -16,6 +11,7 @@ const productSchema = new mongoose.Schema({
   description: { type: String, trim: true },
   rating: { type: Number, min: 0, max: 5 },
   reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
+  category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true }, // <--- add this
 }, {
   timestamps: true,
 });
