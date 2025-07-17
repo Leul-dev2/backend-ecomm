@@ -3,7 +3,7 @@ import Category from '../models/Category.js';
 
 const router = express.Router();
 
-// ✅ Get all categories
+// Get all categories
 router.get('/', async (req, res) => {
   try {
     const categories = await Category.find();
@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ Get category by ID
+// Get category by ID
 router.get('/:id', async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
@@ -24,7 +24,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ✅ Create a new category WITH optional subcategories
+// Create a new category WITH optional subcategories
 router.post('/', async (req, res) => {
   try {
     const { title, image, svgSrc, thumbnail, label, subCategories } = req.body;
@@ -45,7 +45,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ✅ Add one or more subcategories to an existing category
+// Add one or more subcategories to an existing category
 router.post('/:id/subcategories', async (req, res) => {
   try {
     const { subCategories } = req.body;
@@ -67,7 +67,7 @@ router.post('/:id/subcategories', async (req, res) => {
   }
 });
 
-// ✅ Update category by ID
+// Update category by ID
 router.put('/:id', async (req, res) => {
   try {
     const updatedCategory = await Category.findByIdAndUpdate(
@@ -82,12 +82,56 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// ✅ Delete category by ID
+// Delete category by ID
 router.delete('/:id', async (req, res) => {
   try {
     const deletedCategory = await Category.findByIdAndDelete(req.params.id);
     if (!deletedCategory) return res.status(404).json({ message: 'Category not found' });
     res.json({ message: 'Category deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ------------------
+// Update a subcategory by ID inside a category
+router.put('/:categoryId/subcategories/:subCategoryId', async (req, res) => {
+  try {
+    const { categoryId, subCategoryId } = req.params;
+    const { title, thumbnail } = req.body;
+
+    const category = await Category.findById(categoryId);
+    if (!category) return res.status(404).json({ message: 'Category not found' });
+
+    const subCat = category.subCategories.id(subCategoryId);
+    if (!subCat) return res.status(404).json({ message: 'Subcategory not found' });
+
+    if (title !== undefined) subCat.title = title;
+    if (thumbnail !== undefined) subCat.thumbnail = thumbnail;
+
+    await category.save();
+    res.json(category);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Delete a subcategory by ID inside a category
+router.delete('/:categoryId/subcategories/:subCategoryId', async (req, res) => {
+  try {
+    const { categoryId, subCategoryId } = req.params;
+
+    const category = await Category.findById(categoryId);
+    if (!category) return res.status(404).json({ message: 'Category not found' });
+
+    const subCat = category.subCategories.id(subCategoryId);
+    if (!subCat) return res.status(404).json({ message: 'Subcategory not found' });
+
+    subCat.remove();
+
+    await category.save();
+
+    res.json({ message: 'Subcategory deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
