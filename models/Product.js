@@ -12,7 +12,7 @@ const productSchema = new mongoose.Schema({
   rating: { type: Number, min: 0, max: 5 },
   reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
-  subcategory: { type: mongoose.Schema.Types.ObjectId, ref: 'SubCategory' }, // <--- add this
+  subcategory: { type: mongoose.Schema.Types.ObjectId }, // <--- add this
 }, {
   timestamps: true,
 });

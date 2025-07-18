@@ -31,7 +31,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   logger.error("❌ ERROR: STRIPE_SECRET_KEY is not set in environment variables.");
   process.exit(1);
 }
-
+const reviewRoutes = require('./routes/reviews');
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2022-11-15',
 });
@@ -78,6 +78,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api', authRoutes);
 app.use('/api/orders', ordersRouter);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/products', reviewRoutes);
 
 app.get('/api', (req, res) => {
   res.send('✅ Backend is up!');
