@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import Product from '../models/Product.js';
+import Review from '../models/Review.js';
+
 const router = express.Router();
-const Product = require('../models/Product');
-const Review = require('../models/Review');
 
 // GET /products/:productId/reviews - get all reviews for a product
 router.get('/:productId/reviews', async (req, res) => {
@@ -54,4 +55,4 @@ router.post('/:productId/reviews', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
