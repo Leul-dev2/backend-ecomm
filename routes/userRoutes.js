@@ -1,9 +1,9 @@
-// routes/userRoutes.js
 import express from 'express';
 import admin from '../firebaseAdmin.js';
 
 const router = express.Router();
 
+// ✅ GET /api/users/count - counts *all* Firebase Auth users, even if >1000
 router.get('/count', async (req, res) => {
   try {
     let userCount = 0;
