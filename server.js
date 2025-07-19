@@ -1,4 +1,3 @@
-// server.js
 import dotenv from 'dotenv';
 dotenv.config(); // Must be first!
 
@@ -31,7 +30,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   logger.error("❌ ERROR: STRIPE_SECRET_KEY is not set in environment variables.");
   process.exit(1);
 }
-const reviewRoutes = require('./routes/reviews');
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2022-11-15',
 });
@@ -74,11 +73,10 @@ app.post('/create-payment-intent', async (req, res) => {
 // API routes
 app.use('/api/products', productRoutes);
 app.use('/api/return-policy', returnPolicyRoutes);
-app.use('/api/reviews', reviewRoutes);
+app.use('/api/reviews', reviewRoutes);    // Reviews routes under /api/reviews
 app.use('/api', authRoutes);
 app.use('/api/orders', ordersRouter);
 app.use('/api/categories', categoryRoutes);
-app.use('/api/products', reviewRoutes);
 
 app.get('/api', (req, res) => {
   res.send('✅ Backend is up!');
@@ -88,7 +86,7 @@ app.get('/api/orders', auth, (req, res) => {
   // Protected route example
 });
 
-app.get("/api/orders", verifyToken, (req, res) => {
+app.get('/api/orders', verifyToken, (req, res) => {
   res.json({ message: "This is a protected orders route", user: req.user });
 });
 
