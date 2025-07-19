@@ -65,9 +65,7 @@ app.post('/create-payment-intent', async (req, res) => {
 
 // --- IMPORTANT: Mount reviewRoutes under /api/products so your frontend API calls work ---
 app.use('/api/products', productRoutes);
-app.use('/api/reviews', reviewRoutes);
-// Correct: Mount reviewRoutes under /api/products to match your routes and frontend calls
-app.use('/api/products', reviewRoutes);
+app.use('/api', reviewRoutes);
 
 // <- Mount review routes here!
 
