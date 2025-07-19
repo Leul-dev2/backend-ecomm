@@ -65,7 +65,8 @@ app.post('/create-payment-intent', async (req, res) => {
 
 // --- IMPORTANT: Mount reviewRoutes under /api/products so your frontend API calls work ---
 app.use('/api/products', productRoutes);
-app.use('/api', reviewRoutes);
+app.use('/api/products', reviewRoutes);  // for Flutter frontend routes like /api/products/:productId/reviews
+app.use('/api/reviews', reviewRoutes);   // for Admin dashboard routes like /api/reviews/pending
 
 // <- Mount review routes here!
 

@@ -4,7 +4,7 @@ import Review from '../models/Review.js';
 
 const router = express.Router();
 
-// 1. Get pending reviews (same)
+// 1. Get pending reviews (Admin dashboard)
 router.get('/pending', async (req, res) => {
   try {
     const pendingReviews = await Review.find({ approved: false }).populate('product');
@@ -14,7 +14,7 @@ router.get('/pending', async (req, res) => {
   }
 });
 
-// 2a. Get reviews for a product — new route pattern
+// 2a. Get reviews for a product — new route pattern (Flutter)
 router.get('/product/:productId', async (req, res) => {
   try {
     const product = await Product.findById(req.params.productId).populate('reviews').exec();
@@ -25,7 +25,7 @@ router.get('/product/:productId', async (req, res) => {
   }
 });
 
-// 2b. Get reviews for a product — legacy Flutter route pattern
+// 2b. Get reviews for a product — legacy Flutter route pattern (optional if needed)
 router.get('/products/:productId/reviews', async (req, res) => {
   try {
     const product = await Product.findById(req.params.productId).populate('reviews').exec();
@@ -96,7 +96,7 @@ router.post('/products/:productId/reviews', async (req, res) => {
   }
 });
 
-// 4. Approve a review (same)
+// 4. Approve a review (Admin dashboard)
 router.patch('/:reviewId/approve', async (req, res) => {
   try {
     const review = await Review.findByIdAndUpdate(req.params.reviewId, { approved: true }, { new: true });
