@@ -1,4 +1,3 @@
-// models/Review.js
 const mongoose = require('mongoose');
 
 const ReviewSchema = new mongoose.Schema({
@@ -8,7 +7,11 @@ const ReviewSchema = new mongoose.Schema({
   avatarUrl: { type: String },
   rating: { type: Number, required: true, min: 0, max: 5 },
   comment: { type: String },
-  createdAt: { type: Date, default: Date.now },
-});
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending',
+  },
+}, { timestamps: true });
 
 module.exports = mongoose.model('Review', ReviewSchema);
