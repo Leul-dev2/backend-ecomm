@@ -4,7 +4,7 @@ import Review from '../models/Review.js';
 
 const router = express.Router();
 
-// GET /products/:productId/reviews - get all reviews for a product
+// ✅ Get all reviews for a specific product
 router.get('/:productId/reviews', async (req, res) => {
   try {
     const product = await Product.findById(req.params.productId)
@@ -21,7 +21,7 @@ router.get('/:productId/reviews', async (req, res) => {
   }
 });
 
-// POST /products/:productId/reviews - add a new review to a product
+// ✅ Add a new review for a product
 router.post('/:productId/reviews', async (req, res) => {
   try {
     const { userId, name, avatarUrl, rating, comment } = req.body;
@@ -42,6 +42,7 @@ router.post('/:productId/reviews', async (req, res) => {
       avatarUrl,
       rating,
       comment,
+      approved: false, // ✅ all new reviews start as pending
     });
 
     await review.save();
@@ -50,6 +51,35 @@ router.post('/:productId/reviews', async (req, res) => {
     await product.save();
 
     res.status(201).json(review);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ✅ NEW: Get all pending reviews (for admin dashboard)
+router.get('/pending', async (req, res) => {
+  try {
+    const pendingReviews = await Review.find({ approved: false }).populate('product');
+    res.json(pendingReviews);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ✅ Optional: approve a review
+router.patch('/:reviewId/approve', async (req, res) => {
+  try {
+    const review = await Review.findByIdAndUpdate(
+      req.params.reviewId,
+      { approved: true },
+      { new: true }
+    );
+
+    if (!review) {
+      return res.status(404).json({ message: 'Review not found' });
+    }
+
+    res.json(review);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
