@@ -1,11 +1,13 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-  firebaseUid: { type: String, unique: true, required: true },
-  email: { type: String },
-  name: { type: String },
-  isAdmin: { type: Boolean, default: false },
-}, { timestamps: true });
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  avatarUrl: { type: String },
+  role: { type: String, default: 'user' }, // optional: user/admin roles
+  createdAt: { type: Date, default: Date.now }
+});
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
+
 export default User;

@@ -8,6 +8,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Stripe from 'stripe';
 import morgan from 'morgan';
+import userRoutes from './routes/userRoutes.js';
 
 import logger from './logger.js';       // Winston logger
 import './firebaseAdmin.js';             // Firebase admin init
@@ -77,7 +78,7 @@ app.use('/api/reviews', reviewRoutes);    // Reviews routes under /api/reviews
 app.use('/api', authRoutes);
 app.use('/api/orders', ordersRouter);
 app.use('/api/categories', categoryRoutes);
-
+app.use('/api/users', userRoutes);
 app.get('/api', (req, res) => {
   res.send('✅ Backend is up!');
 });
