@@ -10,14 +10,14 @@ router.get('/count', async (req, res) => {
     let nextPageToken;
 
     do {
-      const listUsersResult = await admin.auth().listUsers(1000, nextPageToken);
-      userCount += listUsersResult.users.length;
-      nextPageToken = listUsersResult.pageToken;
+      const result = await admin.auth().listUsers(1000, nextPageToken);
+      userCount += result.users.length;
+      nextPageToken = result.pageToken;
     } while (nextPageToken);
 
     res.json({ count: userCount });
   } catch (error) {
-    console.error("Error fetching user count:", error);
+    console.error("❌ Error fetching user count:", error);
     res.status(500).json({ error: "Failed to fetch user count" });
   }
 });
