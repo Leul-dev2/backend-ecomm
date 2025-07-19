@@ -11,10 +11,14 @@ import morgan from 'morgan';
 
 import logger from './logger.js';
 import './firebaseAdmin.js';
+
 import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import returnPolicyRoutes from './routes/returnPolicy.js';
-import reviewRoutes from './routes/reviews.js';   // Review routes
+
+import adminReviewRoutes from './routes/adminReviewRoutes.js'; // ✅ Correct split
+import productReviewRoutes from './routes/productReviewRoutes.js'; // ✅ Correct split
+
 import { verifyToken } from './middleware/firebaseAuth.js';
 import { auth } from './middleware/auth.js';
 import authRoutes from './routes/authRoutes.js';
@@ -63,12 +67,10 @@ app.post('/create-payment-intent', async (req, res) => {
   }
 });
 
-// --- IMPORTANT: Mount reviewRoutes under /api/products so your frontend API calls work ---
+// ✅ ✅ ✅ CORRECT: split + clean mounts — no conflict!
 app.use('/api/products', productRoutes);
-app.use('/api/products', reviewRoutes);  // for Flutter frontend routes like /api/products/:productId/reviews
-app.use('/api/reviews', reviewRoutes);   // for Admin dashboard routes like /api/reviews/pending
-
-// <- Mount review routes here!
+app.use('/api/products', productReviewRoutes); // only product review GET/POST
+app.use('/api/reviews', adminReviewRoutes);    // only admin pending/approve
 
 app.use('/api/return-policy', returnPolicyRoutes);
 app.use('/api', authRoutes);
@@ -102,7 +104,6 @@ mongoose
     logger.error(`❌ MongoDB connection failed: ${err.message}`);
   });
 
-// Centralized error handling middleware
 app.use((err, req, res, next) => {
   logger.error(`Unhandled error: ${err.stack || err.message || err}`);
   res.status(500).json({ error: 'Internal Server Error' });
