@@ -24,9 +24,9 @@ import { auth } from './middleware/auth.js';
 import authRoutes from './routes/authRoutes.js';
 import categoryRoutes from './routes/categories.js';
 import ordersRouter from './routes/orders.js';
-
+import chatRoutes from './routes/chatRoutes.js';
 const app = express();
-const chatRoutes = require('./routes/chatRoutes');
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
