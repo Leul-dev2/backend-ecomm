@@ -26,7 +26,7 @@ import categoryRoutes from './routes/categories.js';
 import ordersRouter from './routes/orders.js';
 
 const app = express();
-
+const chatRoutes = require('./routes/chatRoutes');
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -71,7 +71,7 @@ app.post('/create-payment-intent', async (req, res) => {
 app.use('/api/products', productRoutes);
 app.use('/api/products', productReviewRoutes); // only product review GET/POST
 app.use('/api/reviews', adminReviewRoutes);    // only admin pending/approve
-
+app.use('/api/chats', chatRoutes);
 app.use('/api/return-policy', returnPolicyRoutes);
 app.use('/api', authRoutes);
 app.use('/api/orders', ordersRouter);
