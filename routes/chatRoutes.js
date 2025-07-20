@@ -1,49 +1,64 @@
-const express = require('express');
-const router = express.Router();
-const db = require('../firebaseAdmin');
+// 📂 routes/chatRoutes.js
+import express from "express";
+import admin from "firebase-admin";
 
-// Get all chats
-router.get('/all', async (req, res) => {
+const router = express.Router();
+
+// Make sure you initialized Firebase Admin SDK!
+const firestore = admin.firestore();
+
+// Get all chats (list only)
+router.get("/all", async (req, res) => {
   try {
-    const snapshot = await db.collection('chats').get();
-    const chats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const snapshot = await firestore.collection("chats").get();
+    const chats = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
     res.json(chats);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Failed to fetch chats' });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Get messages in a chat
-router.get('/:chatId/messages', async (req, res) => {
-  const { chatId } = req.params;
+// Get messages for one chat
+router.get("/:chatId/messages", async (req, res) => {
   try {
-    const snapshot = await db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt').get();
-    const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const { chatId } = req.params;
+    const snapshot = await firestore
+      .collection("chats")
+      .doc(chatId)
+      .collection("messages")
+      .orderBy("createdAt", "asc")
+      .get();
+
+    const messages = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
     res.json(messages);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Failed to fetch messages' });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Send admin reply
-router.post('/:chatId/messages', async (req, res) => {
-  const { chatId } = req.params;
-  const { message } = req.body;
-
+// Admin reply -> create message in Firestore
+router.post("/:chatId/messages", async (req, res) => {
   try {
-    const ref = db.collection('chats').doc(chatId).collection('messages').doc();
-    await ref.set({
-      senderId: 'admin',
+    const { chatId } = req.params;
+    const { message } = req.body;
+
+    await firestore.collection("chats").doc(chatId).collection("messages").add({
+      senderId: "admin",
       message,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-    res.json({ success: true });
+
+    res.json({ status: "Message sent" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Failed to send message' });
+    res.status(500).json({ error: err.message });
   }
 });
 
-module.exports = router;
+export default router;
