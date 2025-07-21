@@ -1,7 +1,7 @@
 // routes/notifications.js
 import express from 'express';
 import admin from '../firebaseAdmin.js';
-import verifyAdmin from '../middlewares/verifyAdmin.js';
+import verifyAdmin from '../middleware/verifyAdmin.js';
 
 const router = express.Router();
 const firestore = admin.firestore();
