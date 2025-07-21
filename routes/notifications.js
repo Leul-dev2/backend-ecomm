@@ -1,30 +1,44 @@
-// routes/notifications.js
+// backend/routes/notifications.js
 import express from 'express';
 import admin from '../firebaseAdmin.js';
-import verifyAdmin from '../middleware/verifyAdmin.js';
 
 const router = express.Router();
 const firestore = admin.firestore();
 
-// Send notification to all users (admin only)
-router.post('/send-to-all', verifyAdmin, async (req, res) => {
-  try {
-    const { title, message, iconPath, route, routeArgs } = req.body;
-    if (!title || !message) return res.status(400).json({ error: 'Missing title or message' });
+// Middleware to verify admin token and claim (adjust to your project)
+async function verifyAdmin(req, res, next) {
+  const authHeader = req.headers.authorization || '';
+  const idToken = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
 
-    // List all users (paginated)
-    const allUsers = [];
+  if (!idToken) return res.status(401).json({ error: 'No token provided' });
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    if (!decodedToken.admin) return res.status(403).json({ error: 'Unauthorized' });
+
+    req.user = decodedToken;
+    next();
+  } catch (e) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
+
+router.post('/send-to-all', verifyAdmin, async (req, res) => {
+  const { title, message, iconPath, route, routeArgs } = req.body;
+  if (!title || !message) return res.status(400).json({ error: 'Missing title or message' });
+
+  try {
+    // List all users (max 1000 per call, paginate if needed)
+    let allUsers = [];
     let result = await admin.auth().listUsers(1000);
-    allUsers.push(...result.users);
+    allUsers = allUsers.concat(result.users);
 
     while (result.pageToken) {
       result = await admin.auth().listUsers(1000, result.pageToken);
-      allUsers.push(...result.users);
+      allUsers = allUsers.concat(result.users);
     }
 
-    console.log(`Found ${allUsers.length} users`);
-
-    // Batch write notifications
+    // Batch write notifications for all users
     const batch = firestore.batch();
 
     allUsers.forEach(user => {
@@ -42,42 +56,10 @@ router.post('/send-to-all', verifyAdmin, async (req, res) => {
 
     await batch.commit();
 
-    res.json({ success: true, sentTo: allUsers.length });
+    res.json({ success: true, sent: allUsers.length });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Get notifications for a specific user
-router.get('/:userId', async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const notifsSnapshot = await firestore
-      .collection('users')
-      .doc(userId)
-      .collection('notifications')
-      .orderBy('timestamp', 'desc')
-      .get();
-
-    const notifications = notifsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    res.json(notifications);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Mark a notification as read
-router.patch('/:userId/:notifId/read', async (req, res) => {
-  try {
-    const { userId, notifId } = req.params;
-    const notifRef = firestore.collection('users').doc(userId).collection('notifications').doc(notifId);
-    await notifRef.update({ isRead: true });
-    res.json({ success: true });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Error sending notifications to all:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
