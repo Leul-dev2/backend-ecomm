@@ -1,4 +1,5 @@
-import { paymentIntents, setupIntents, paymentMethods as _paymentMethods } from './stripeClient';
+// src/controllers/paymentController.js
+import { stripe } from '../controllers/stripeClient.js';  // <-- fix import path!
 
 export async function createPaymentIntent(req, res) {
   try {
@@ -8,9 +9,11 @@ export async function createPaymentIntent(req, res) {
       return res.status(400).json({ error: 'Valid amount (in cents) is required.' });
     }
 
-    // If customerId and paymentMethodId are provided, create a payment intent for saved card
+    let paymentIntent;
+
     if (customerId && paymentMethodId) {
-      const paymentIntent = await paymentIntents.create({
+      // Confirm an off-session payment with saved card
+      paymentIntent = await stripe.paymentIntents.create({
         amount,
         currency,
         customer: customerId,
@@ -18,15 +21,14 @@ export async function createPaymentIntent(req, res) {
         off_session: true,
         confirm: true,
       });
-      return res.status(200).json({ clientSecret: paymentIntent.client_secret });
+    } else {
+      // New card payment
+      paymentIntent = await stripe.paymentIntents.create({
+        amount,
+        currency,
+        payment_method_types: ['card'],
+      });
     }
-
-    // Otherwise create a regular payment intent without saved card
-    const paymentIntent = await paymentIntents.create({
-      amount,
-      currency,
-      payment_method_types: ['card'],
-    });
 
     return res.status(200).json({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
@@ -43,7 +45,7 @@ export async function createSetupIntent(req, res) {
   }
 
   try {
-    const setupIntent = await setupIntents.create({
+    const setupIntent = await stripe.setupIntents.create({
       customer: customerId,
       payment_method_types: ['card'],
     });
@@ -62,7 +64,7 @@ export async function listPaymentMethods(req, res) {
   }
 
   try {
-    const paymentMethods = await _paymentMethods.list({
+    const paymentMethods = await stripe.paymentMethods.list({
       customer: customerId,
       type: 'card',
     });
