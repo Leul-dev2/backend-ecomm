@@ -1,7 +1,8 @@
-// routes/notifications.js
-const express = require('express');
+import express from "express";
+import admin from "../firebaseAdmin.js";  // <-- import your initialized admin
+
 const router = express.Router();
-const { firestore } = require('../firebaseAdmin');
+const firestore = admin.firestore();
 
 // Send notification to a user
 router.post('/send', async (req, res) => {
@@ -21,7 +22,7 @@ router.post('/send', async (req, res) => {
       title,
       message,
       iconPath: iconPath || '',
-      timestamp: firestore.FieldValue.serverTimestamp(),
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
       isRead: false,
       route: route || null,
       routeArgs: routeArgs || null,
@@ -77,4 +78,4 @@ router.patch('/:userId/:notifId/read', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

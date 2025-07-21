@@ -15,7 +15,7 @@ import './firebaseAdmin.js';
 import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import returnPolicyRoutes from './routes/returnPolicy.js';
-import notifcatonsRoutes from './routes/notifications.js'; // ✅ Correct split
+import notificationsRoutes from './routes/notifications.js';// ✅ Correct split
 import adminReviewRoutes from './routes/adminReviewRoutes.js'; // ✅ Correct split
 import productReviewRoutes from './routes/productReviewRoutes.js'; // ✅ Correct split
 
@@ -77,7 +77,7 @@ app.use('/api', authRoutes);
 app.use('/api/orders', ordersRouter);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/users', userRoutes);
-app.use('/notifications', notificationRoutes);
+app.use('/notifications', notificationsRoutes);
 
 app.get('/api', (req, res) => {
   res.send('✅ Backend is up!');
