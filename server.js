@@ -25,6 +25,7 @@ import authRoutes from './routes/authRoutes.js';
 import categoryRoutes from './routes/categories.js';
 import ordersRouter from './routes/orders.js';
 import chatRoutes from './routes/chatRoutes.js';
+import paymentRoutes from './routes/payment.js';
 const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -78,6 +79,7 @@ app.use('/api/orders', ordersRouter);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/payment', paymentRoutes);
 
 app.get('/api', (req, res) => {
   res.send('✅ Backend is up!');
