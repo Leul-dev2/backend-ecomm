@@ -1,9 +1,9 @@
-const stripe = require('../controllers/stripeClient.js').default;
+import stripe from '../controllers/stripeClient.js';
 
 // In-memory store, replace with DB in prod
 const customers = {};
 
-exports.createOrGetCustomer = async (req, res) => {
+export async function createOrGetCustomer(req, res) {
   const { userId, email } = req.body;
   try {
     if (customers[userId]) return res.json({ customerId: customers[userId] });
@@ -14,4 +14,4 @@ exports.createOrGetCustomer = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-};
+}
