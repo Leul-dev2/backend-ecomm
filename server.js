@@ -77,12 +77,11 @@ app.use('/api', authRoutes);
 app.use('/api/orders', ordersRouter);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/users', userRoutes);
-app.use('/notifications', notificationsRoutes);
+app.use('/api/notifications', notificationsRouter);
 
 app.get('/api', (req, res) => {
   res.send('✅ Backend is up!');
 });
-
 app.get('/api/orders', auth, (req, res) => {
   // Protected route example
 });
