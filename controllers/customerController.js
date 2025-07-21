@@ -1,4 +1,4 @@
-import stripe from '../controllers/stripeClient.js';
+import { stripe } from '../controllers/stripeClient.js';
 
 // In-memory store, replace with DB in prod
 const customers = {};
