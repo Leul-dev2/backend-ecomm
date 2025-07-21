@@ -77,7 +77,7 @@ app.use('/api', authRoutes);
 app.use('/api/orders', ordersRouter);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/notifications', notificationsRouter);
+app.use('/api/notifications', notificationsRoutes);
 
 app.get('/api', (req, res) => {
   res.send('✅ Backend is up!');
