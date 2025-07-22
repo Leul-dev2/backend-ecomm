@@ -1,6 +1,13 @@
 // src/controllers/paymentController.js
-import { stripe } from '../controllers/stripeClient.js';  // <-- fix import path!
 
+import { stripe } from '../controllers/stripeClient.js'; // ✅ fix import if needed
+
+/**
+ * POST /create-payment-intent
+ * Creates a PaymentIntent.
+ * If `customerId` and `paymentMethodId` are provided, attempts an off-session payment.
+ * Otherwise, creates a standard PaymentIntent for new card payments.
+ */
 export async function createPaymentIntent(req, res) {
   try {
     const { amount, currency = 'usd', customerId, paymentMethodId } = req.body;
@@ -12,7 +19,7 @@ export async function createPaymentIntent(req, res) {
     let paymentIntent;
 
     if (customerId && paymentMethodId) {
-      // Confirm an off-session payment with saved card
+      // ✅ Saved card flow — off-session
       paymentIntent = await stripe.paymentIntents.create({
         amount,
         currency,
@@ -22,7 +29,7 @@ export async function createPaymentIntent(req, res) {
         confirm: true,
       });
     } else {
-      // New card payment
+      // ✅ New card flow
       paymentIntent = await stripe.paymentIntents.create({
         amount,
         currency,
@@ -33,10 +40,22 @@ export async function createPaymentIntent(req, res) {
     return res.status(200).json({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
     console.error('Stripe PaymentIntent creation error:', error);
-    return res.status(500).json({ error: error.message });
+
+    if (error.code === 'authentication_required') {
+      // ⚡️ Optional: handle special 3DS failure
+      return res.status(402).json({
+        error: 'Authentication required. Customer must complete payment manually.',
+      });
+    }
+
+    return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 }
 
+/**
+ * POST /create-setup-intent
+ * Creates a SetupIntent for saving a new card.
+ */
 export async function createSetupIntent(req, res) {
   const { customerId } = req.body;
 
@@ -49,13 +68,18 @@ export async function createSetupIntent(req, res) {
       customer: customerId,
       payment_method_types: ['card'],
     });
-    res.status(200).json({ clientSecret: setupIntent.client_secret });
+
+    return res.status(200).json({ clientSecret: setupIntent.client_secret });
   } catch (error) {
     console.error('Stripe SetupIntent creation error:', error);
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 }
 
+/**
+ * GET /list-payment-methods
+ * Lists saved payment methods (cards) for a given customer.
+ */
 export async function listPaymentMethods(req, res) {
   const { customerId } = req.query;
 
@@ -68,9 +92,10 @@ export async function listPaymentMethods(req, res) {
       customer: customerId,
       type: 'card',
     });
-    res.status(200).json(paymentMethods.data);
+
+    return res.status(200).json(paymentMethods.data);
   } catch (error) {
     console.error('Stripe listPaymentMethods error:', error);
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 }
