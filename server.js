@@ -74,7 +74,7 @@ app.use('/api/products', productReviewRoutes); // only product review GET/POST
 app.use('/api/reviews', adminReviewRoutes);    // only admin pending/approve
 app.use('/api/chats', chatRoutes);
 app.use('/api/return-policy', returnPolicyRoutes);
-app.use('/api', authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/orders', ordersRouter);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/users', userRoutes);
