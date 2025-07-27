@@ -50,6 +50,7 @@ router.post("/callback", async (req, res) => {
   console.log(`🔔 Chapa callback: ${tx_ref} status: ${status}`);
 
   try {
+    // Verify payment with Chapa API
     const verifyRes = await axios.get(
       `https://api.chapa.co/v1/transaction/verify/${tx_ref}`,
       {
@@ -62,7 +63,24 @@ router.post("/callback", async (req, res) => {
     const data = verifyRes.data.data;
     console.log("✅ Verified payment:", data);
 
-    // 👉 TODO: Mark your order as paid in your DB using tx_ref
+    // Find the order in Firestore by tx_ref (assuming you stored it)
+    const ordersRef = firestore.collection("orders");
+    const snapshot = await ordersRef.where("tx_ref", "==", tx_ref).limit(1).get();
+
+    if (snapshot.empty) {
+      console.warn(`Order with tx_ref ${tx_ref} not found in Firestore`);
+      return res.status(404).send("Order not found");
+    }
+
+    const orderDoc = snapshot.docs[0];
+    // Update order document with payment status
+    await orderDoc.ref.update({
+      paymentStatus: status,
+      paymentVerifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+      chapaPaymentData: data, // store all payment info if you want
+    });
+
+    console.log(`Order ${orderDoc.id} marked as ${status}`);
 
     res.sendStatus(200);
   } catch (err) {
@@ -70,6 +88,7 @@ router.post("/callback", async (req, res) => {
     res.sendStatus(500);
   }
 });
+
 
 // ✅ 3️⃣ Return URL route
 router.get("/return", (req, res) => {
