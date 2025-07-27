@@ -18,10 +18,10 @@ router.post("/create-payment", async (req, res) => {
       return res.status(400).json({ error: "Invalid email" });
     }
 
-    const txRef = uuidv4();
+const txRef = uuidv4();
 
     const payload = {
-      amount: amountNum,
+     amount: Number(amount),
       currency: currency || "ETB",
       email,
       first_name: firstName || "First",
