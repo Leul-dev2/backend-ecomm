@@ -52,22 +52,6 @@ app.get('/', (req, res) => {
   res.send('✅ Backend server is running');
 });
 
-app.post('/create-payment-intent', async (req, res) => {
-  try {
-    const { amount } = req.body;
-
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount,
-      currency: 'usd',
-      payment_method_types: ['card'],
-    });
-
-    res.send({ clientSecret: paymentIntent.client_secret });
-  } catch (error) {
-    logger.error(`Stripe Payment Error: ${error.message}`);
-    res.status(500).json({ error: error.message });
-  }
-});
 
 // ✅ ✅ ✅ CORRECT: split + clean mounts — no conflict!
 app.use('/api/products', productRoutes);
