@@ -1,24 +1,15 @@
 import express from "express";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-import admin from "firebase-admin";
 
 const router = express.Router();
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault(), // or use cert
-  });
-}
-
-const firestore = admin.firestore();
-
-// Create payment
+// ✅ 1️⃣ Create payment route
 router.post("/create-payment", async (req, res) => {
   const { amount, email, phone, firstName, lastName, currency } = req.body;
 
   try {
-    const txRef = uuidv4();
+    const txRef = uuidv4(); // unique transaction ID
 
     const chapaRes = await axios.post(
       "https://api.chapa.co/v1/transaction/initialize",
@@ -45,30 +36,21 @@ router.post("/create-payment", async (req, res) => {
       }
     );
 
-    // Store order in Firestore with tx_ref for later verification
-    await firestore.collection("orders").add({
-      tx_ref: txRef,
-      email,
-      amount,
-      currency,
-      status: "pending",
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
     res.send({ checkoutUrl: chapaRes.data.data.checkout_url });
   } catch (error) {
-  console.error('Create payment error:', error.response?.data || error.message || error);
-  res.status(500).json({ error: "Failed to create Chapa payment" });
-}
-
+    console.error(error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to create Chapa payment" });
+  }
 });
 
-// Callback to verify payment & update Firestore
+// ✅ 2️⃣ Callback route (OUTSIDE of create-payment!)
 router.post("/callback", async (req, res) => {
   const { tx_ref, status } = req.body;
+
   console.log(`🔔 Chapa callback: ${tx_ref} status: ${status}`);
 
   try {
+    // Verify payment with Chapa API
     const verifyRes = await axios.get(
       `https://api.chapa.co/v1/transaction/verify/${tx_ref}`,
       {
@@ -81,6 +63,7 @@ router.post("/callback", async (req, res) => {
     const data = verifyRes.data.data;
     console.log("✅ Verified payment:", data);
 
+    // Find the order in Firestore by tx_ref (assuming you stored it)
     const ordersRef = firestore.collection("orders");
     const snapshot = await ordersRef.where("tx_ref", "==", tx_ref).limit(1).get();
 
@@ -90,13 +73,15 @@ router.post("/callback", async (req, res) => {
     }
 
     const orderDoc = snapshot.docs[0];
+    // Update order document with payment status
     await orderDoc.ref.update({
       paymentStatus: status,
       paymentVerifiedAt: admin.firestore.FieldValue.serverTimestamp(),
-      chapaPaymentData: data,
+      chapaPaymentData: data, // store all payment info if you want
     });
 
     console.log(`Order ${orderDoc.id} marked as ${status}`);
+
     res.sendStatus(200);
   } catch (err) {
     console.error("❌ Verification failed:", err.response?.data || err.message);
@@ -104,7 +89,8 @@ router.post("/callback", async (req, res) => {
   }
 });
 
-// Return URL for frontend redirect after payment
+
+// ✅ 3️⃣ Return URL route
 router.get("/return", (req, res) => {
   const txRef = req.query.tx_ref;
 
@@ -113,7 +99,7 @@ router.get("/return", (req, res) => {
       <head><title>Payment Success</title></head>
       <body>
         <h1>🎉 Payment Completed!</h1>
-        <p>Thank you! Your transaction reference: ${txRef}</p>
+        <p>Thank you! Your transaction ref: ${txRef}</p>
         <a href="/">Back to Home</a>
       </body>
     </html>
