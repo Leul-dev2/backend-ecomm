@@ -57,9 +57,10 @@ router.post("/create-payment", async (req, res) => {
 
     res.send({ checkoutUrl: chapaRes.data.data.checkout_url });
   } catch (error) {
-    console.error(error.response?.data || error.message);
-    res.status(500).json({ error: "Failed to create Chapa payment" });
-  }
+  console.error('Create payment error:', error.response?.data || error.message || error);
+  res.status(500).json({ error: "Failed to create Chapa payment" });
+}
+
 });
 
 // Callback to verify payment & update Firestore
