@@ -8,20 +8,19 @@ router.post("/create-payment", async (req, res) => {
   try {
     const { amount, email, phone, firstName, lastName, currency } = req.body;
 
-    // Validate amount as a number
+    // Basic validations
     const amountNum = Number(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
       return res.status(400).json({ error: "Invalid amount" });
     }
-
     if (!email || !email.includes("@")) {
       return res.status(400).json({ error: "Invalid email" });
     }
 
-const txRef = uuidv4();
+    const txRef = uuidv4();
 
     const payload = {
-     amount: Number(amount),
+      amount: amountNum,
       currency: currency || "ETB",
       email,
       first_name: firstName || "First",
@@ -54,7 +53,7 @@ const txRef = uuidv4();
     res.json({ checkoutUrl: chapaRes.data.data.checkout_url, txRef });
   } catch (error) {
     console.error("Chapa create payment error:", error.response?.data || error.message);
-    res.status(500).json({ error: error.response?.data || error.message });
+    res.status(500).json({ error: error.response?.data?.message || error.message });
   }
 });
 
