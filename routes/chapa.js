@@ -1,9 +1,12 @@
-import express from 'express';
-import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
-import { admin, firestore } from '../firebaseAdmin.js';
+import express from "express";
+import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
+import admin from '../firebaseAdmin.js';  // default import
 
 const router = express.Router();
+const firestore = admin.firestore();
+
+// ... rest of your code
 
 // 1️⃣ Initialize Chapa payment
 router.post('/create-payment', async (req, res) => {
