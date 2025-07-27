@@ -68,6 +68,9 @@ app.use('/api/notifications', notificationsRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/stripe', striperoutes); // ✅ Correct split
 app.use('/api/chapa', chapaRoutes);
+app.get('/', (req, res) => {
+  res.send('✅ Chapa payment backend running');
+});
 
 app.get('/api', (req, res) => {
   res.send('✅ Backend is up!');
