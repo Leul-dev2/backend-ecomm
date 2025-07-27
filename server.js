@@ -27,6 +27,7 @@ import ordersRouter from './routes/orders.js';
 import chatRoutes from './routes/chatRoutes.js';
 import paymentRoutes from './routes/payment.js';
 import striperoutes from './routes/stripe.js'; // ✅ Correct split
+import chapaRoutes from './routes/chapa.js';
 const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -66,6 +67,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/stripe', striperoutes); // ✅ Correct split
+app.use('/api/chapa', chapaRoutes);
 
 app.get('/api', (req, res) => {
   res.send('✅ Backend is up!');
