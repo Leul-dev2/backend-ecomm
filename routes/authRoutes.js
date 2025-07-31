@@ -12,7 +12,7 @@ if (!admin.apps.length) {
   });
 }
 
-router.post("/auth/firebase", async (req, res) => {
+router.post("/firebase", async (req, res) => {
   const { idToken } = req.body;
   if (!idToken) return res.status(400).json({ message: "ID Token is required" });
 
