@@ -18,7 +18,7 @@ import returnPolicyRoutes from './routes/returnPolicy.js';
 import notificationsRoutes from './routes/notifications.js';// ✅ Correct split
 import adminReviewRoutes from './routes/adminReviewRoutes.js'; // ✅ Correct split
 import productReviewRoutes from './routes/productReviewRoutes.js'; // ✅ Correct split
-
+import uploadRoutes from './routes/uploadRoutes.js'; // ✅ Correct split
 import { verifyToken } from './middleware/firebaseAuth.js';
 import { auth } from './middleware/auth.js';
 import authRoutes from './routes/authRoutes.js';
@@ -71,6 +71,8 @@ app.use('/api/chapa', chapaRoutes);
 app.get('/', (req, res) => {
   res.send('✅ Chapa payment backend running');
 });
+app.use('/api/upload', uploadRoutes);
+
 
 app.get('/api', (req, res) => {
   res.send('✅ Backend is up!');
